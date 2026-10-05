@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Leads - Fine Learning CRM{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+  <h1 style="margin:0;">Leads</h1>
+  <div>
+    <a class="btn secondary" href="{{ url_for('leads.import_leads') }}">Import CSV</a>
+    <a class="btn" href="{{ url_for('leads.new_lead') }}">+ New lead</a>
+  </div>
+</div>
+
+<div class="board">
+  {% for s in stages %}
+    <div class="board-col">
+      <h3>{{ stage_labels[s] }} <span class="count">{{ columns[s]|length }}</span></h3>
+      {% for lead in columns[s] %}
+        <a href="{{ url_for('leads.detail', lead_id=lead.id) }}" style="text-decoration:none;">
+          <div class="lead-card">
+            <div class="name">{{ lead.parent_name }}</div>
+            {% if lead.child_name %}<div class="meta">{{ lead.child_name }}{% if lead.year_group %} &middot; {{ lead.year_group }}{% endif %}</div>{% endif %}
+            <div class="meta"><span class="badge {{ lead.source }}">{{ lead.source.replace('_', ' ') }}</span></div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

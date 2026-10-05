@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}New campaign - Fine Learning CRM{% endblock %}
+{% block content %}
+<h1>New SMS campaign</h1>
+
+<div class="card" style="max-width:640px;">
+  <form method="post">
+    <div class="form-group">
+      <label for="name">Campaign name</label>
+      <input type="text" id="name" name="name" placeholder="e.g. Oct 2026 re-engagement" required>
+    </div>
+
+    <div class="form-group">
+      <label for="segment">Send to</label>
+      <select id="segment" name="segment">
+        <option value="all">All leads with a phone number</option>
+        <option value="historical" selected>Historical imports only</option>
+        <option value="new">Leads at "New" stage only</option>
+      </select>
+      <div style="font-size:0.8rem; color:var(--grey-600); margin-top:0.3rem;">
+        Or pick specific people instead, below.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="lead_ids">Specific leads (optional - overrides the dropdown above)</label>
+      <select id="lead_ids" name="lead_ids" multiple size="6">
+        {% for lead in leads %}
+          <option value="{{ lead.id }}">{{ lead.parent_name }}{% if lead.child_name %} ({{ lead.child_name }}){% endif %}{% if not lead.phone %} - no phone{% endif %}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="message_template">Message</label>
+      <textarea id="message_template" name="message_template" rows="4">{{ default_template }}</textarea>
+      <div style="font-size:0.8rem; color:var(--grey-600); margin-top:0.3rem;">
+        Placeholders: <code>{parent_name}</code>, <code>{child_name}</code>,
+        <code>{child_name_or_your_child}</code>, <code>{landing_page_url}</code>
+      </div>
+    </div>
+
+    <button class="btn amber" type="submit">Create campaign</button>
+  </form>
+</div>
+{% endblock %}

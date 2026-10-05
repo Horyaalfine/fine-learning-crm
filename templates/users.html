@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Staff - Fine Learning CRM{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+  <h1 style="margin:0;">Staff accounts</h1>
+  <a class="btn" href="{{ url_for('auth.new_user') }}">+ Add staff</a>
+</div>
+<div class="card">
+  <table>
+    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Active</th></tr></thead>
+    <tbody>
+      {% for u in users %}
+        <tr>
+          <td>{{ u.name }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.role }}</td>
+          <td>{{ 'Yes' if u.active else 'No' }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

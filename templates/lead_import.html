@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Import leads - Fine Learning CRM{% endblock %}
+{% block content %}
+<h1>Import historical parents/students</h1>
+<div class="card" style="max-width:560px;">
+  <p style="color:var(--grey-600);">
+    Upload a CSV with a <code>parent_name</code> column (required), plus any of
+    <code>phone</code>, <code>email</code>, <code>child_name</code>, <code>year_group</code>,
+    <code>subject_needed</code>, <code>notes</code>. Each row becomes a lead with source
+    "historical import" at stage "New", ready to include in an SMS campaign.
+  </p>
+  <form method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="csv_file">CSV file</label>
+      <input type="file" id="csv_file" name="csv_file" accept=".csv" required>
+    </div>
+    <button class="btn" type="submit">Import</button>
+  </form>
+</div>
+{% endblock %}

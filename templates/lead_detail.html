@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}{{ lead.parent_name }} - Fine Learning CRM{% endblock %}
+{% block content %}
+<a href="{{ url_for('leads.board') }}">&larr; Back to leads</a>
+
+<div class="two-col" style="margin-top:1rem;">
+  <div>
+    <div class="card" style="margin-bottom:1.25rem;">
+      <h2 style="margin-bottom:0.2rem;">{{ lead.parent_name }}</h2>
+      <div class="badge {{ lead.source }}">{{ lead.source.replace('_', ' ') }}</div>
+      <table style="margin-top:1rem;">
+        <tr><th>Phone</th><td>{{ lead.phone or '—' }}</td></tr>
+        <tr><th>Email</th><td>{{ lead.email or '—' }}</td></tr>
+        <tr><th>Child</th><td>{{ lead.child_name or '—' }}</td></tr>
+        <tr><th>Year group</th><td>{{ lead.year_group or '—' }}</td></tr>
+        <tr><th>Subject</th><td>{{ lead.subject_needed or '—' }}</td></tr>
+        <tr><th>Assigned to</th><td>{{ lead.assigned_to.name if lead.assigned_to else '—' }}</td></tr>
+        <tr><th>Added</th><td>{{ lead.created_at.strftime('%d %b %Y') }}</td></tr>
+      </table>
+      {% if lead.notes %}<p style="margin-top:1rem; color:var(--grey-600);">{{ lead.notes }}</p>{% endif %}
+    </div>
+
+    <div class="card">
+      <h3>Timeline</h3>
+      {% set events = [] %}
+      {% for c in lead.communications %}
+        {% set _ = events.append((c.created_at, 'comm', c)) %}
+      {% endfor %}
+      {% for h in lead.stage_history %}
+        {% set _ = events.append((h.changed_at, 'stage', h)) %}
+      {% endfor %}
+      {% set sorted_events = events|sort(attribute='0', reverse=True) %}
+      {% if sorted_events %}
+        {% for when, kind, item in sorted_events %}
+          <div class="timeline-item">
+            <div class="when">{{ when.strftime('%d %b %Y, %H:%M') }}</div>
+            {% if kind == 'stage' %}
+              <div><strong>Stage changed</strong> to {{ stage_labels.get(item.to_stage, item.to_stage) }}{% if item.changed_by %} by {{ item.changed_by.name }}{% endif %}</div>
+              {% if item.note %}<div style="color:var(--grey-600);">{{ item.note }}</div>{% endif %}
+            {% else %}
+              <div><strong>{{ item.channel|upper }}</strong>{% if item.direction == 'inbound' %} (received){% endif %}{% if item.sent_by %} – {{ item.sent_by.name }}{% endif %}</div>
+              {% if item.body %}<div style="color:var(--grey-600);">{{ item.body }}</div>{% endif %}
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:var(--grey-600);">No activity logged yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    <div class="card" style="margin-bottom:1.25rem;">
+      <h3>Move stage</h3>
+      <form method="post" action="{{ url_for('leads.change_stage', lead_id=lead.id) }}">
+        <div class="form-group">
+          <label for="stage">New stage</label>
+          <select id="stage" name="stage">
+            {% for s in stages %}
+              <option value="{{ s }}" {% if s == lead.stage %}selected{% endif %}>{{ stage_labels[s] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="note">Note (optional)</label>
+          <input type="text" id="note" name="note" placeholder="e.g. Confirmed for Tue 4pm">
+        </div>
+        <button class="btn" type="submit">Update stage</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>Log contact</h3>
+      <form method="post" action="{{ url_for('leads.add_note', lead_id=lead.id) }}">
+        <div class="form-group">
+          <label for="channel">Channel</label>
+          <select id="channel" name="channel">
+            <option value="call">Phone call</option>
+            <option value="sms">SMS</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="email">Email</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="body">What happened?</label>
+          <textarea id="body" name="body" rows="3" placeholder="e.g. Called, parent wants Thursday 5pm"></textarea>
+        </div>
+        <button class="btn secondary" type="submit">Add to timeline</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

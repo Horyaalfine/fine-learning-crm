@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}New lead - Fine Learning CRM{% endblock %}
+{% block content %}
+<h1>New lead</h1>
+<div class="card" style="max-width:520px;">
+  <form method="post">
+    <div class="form-group">
+      <label for="parent_name">Parent name *</label>
+      <input type="text" id="parent_name" name="parent_name" required>
+    </div>
+    <div class="form-group">
+      <label for="phone">Phone</label>
+      <input type="tel" id="phone" name="phone" placeholder="07123 456789">
+    </div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email">
+    </div>
+    <div class="form-group">
+      <label for="child_name">Child's name</label>
+      <input type="text" id="child_name" name="child_name">
+    </div>
+    <div class="form-group">
+      <label for="year_group">Year group</label>
+      <input type="text" id="year_group" name="year_group" placeholder="e.g. Year 6 (SATs / 11+)">
+    </div>
+    <div class="form-group">
+      <label for="subject_needed">Subject needed</label>
+      <input type="text" id="subject_needed" name="subject_needed" placeholder="Maths / English / Science">
+    </div>
+    <div class="form-group">
+      <label for="notes">Notes</label>
+      <textarea id="notes" name="notes" rows="3"></textarea>
+    </div>
+    <button class="btn" type="submit">Create lead</button>
+  </form>
+</div>
+{% endblock %}

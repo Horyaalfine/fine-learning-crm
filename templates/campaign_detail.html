@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ campaign.name }} - Fine Learning CRM{% endblock %}
+{% block content %}
+<a href="{{ url_for('campaigns.list_campaigns') }}">&larr; Back to campaigns</a>
+
+<h1>{{ campaign.name }}</h1>
+
+<div class="card" style="margin-bottom:1.25rem;">
+  <h3>Message</h3>
+  <p style="white-space:pre-wrap;">{{ campaign.message_template }}</p>
+</div>
+
+<div class="stat-row">
+  <div class="stat-tile"><div class="value">{{ campaign.recipients|length }}</div><div class="label">Recipients</div></div>
+  <div class="stat-tile"><div class="value">{{ campaign.sent_count }}</div><div class="label">Sent</div></div>
+  <div class="stat-tile"><div class="value">{{ campaign.failed_count }}</div><div class="label">Failed</div></div>
+</div>
+
+<form method="post" action="{{ url_for('campaigns.send_campaign', campaign_id=campaign.id) }}" style="margin-bottom:1.25rem;">
+  <button class="btn amber" type="submit" onclick="return confirm('Send this SMS to all pending recipients now?');">Send now</button>
+</form>
+
+<div class="card">
+  <h3>Recipients</h3>
+  <table>
+    <thead><tr><th>Lead</th><th>Phone</th><th>Status</th><th>Sent at</th></tr></thead>
+    <tbody>
+      {% for r in campaign.recipients %}
+        <tr>
+          <td><a href="{{ url_for('leads.detail', lead_id=r.lead.id) }}">{{ r.lead.parent_name }}</a></td>
+          <td>{{ r.lead.phone }}</td>
+          <td>{{ r.status }}{% if r.error %} <span style="color:#a4321d;">({{ r.error }})</span>{% endif %}</td>
+          <td>{{ r.sent_at.strftime('%d %b %Y, %H:%M') if r.sent_at else '' }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

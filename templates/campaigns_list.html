@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Campaigns - Fine Learning CRM{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+  <h1 style="margin:0;">Campaigns</h1>
+  <a class="btn" href="{{ url_for('campaigns.new_campaign') }}">+ New campaign</a>
+</div>
+
+<div class="card">
+  {% if campaigns %}
+  <table>
+    <thead><tr><th>Name</th><th>Recipients</th><th>Sent</th><th>Failed</th><th>Created</th></tr></thead>
+    <tbody>
+      {% for c in campaigns %}
+        <tr>
+          <td><a href="{{ url_for('campaigns.detail', campaign_id=c.id) }}">{{ c.name }}</a></td>
+          <td>{{ c.recipients|length }}</td>
+          <td>{{ c.sent_count }}</td>
+          <td>{{ c.failed_count }}</td>
+          <td>{{ c.created_at.strftime('%d %b %Y') }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p style="color:var(--grey-600);">No campaigns yet. Import your historical parents/students, then create a campaign to send them the booking link.</p>
+  {% endif %}
+</div>
+{% endblock %}
