@@ -36,6 +36,7 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        _bootstrap_admin_if_needed()
 
     @app.cli.command("create-admin")
     @click.argument("name")
@@ -57,6 +58,28 @@ def create_app():
         db.session.commit()
 
     return app
+
+
+def _bootstrap_admin_if_needed():
+    """Create the first admin account from env vars, but only while the
+    users table is empty. This runs on every boot but is a no-op once any
+    user exists, so leaving the env vars set afterwards is harmless - it's
+    worth removing ADMIN_BOOTSTRAP_PASSWORD from Railway once logged in,
+    simply to stop it sitting in the variable list."""
+    if User.query.count() > 0:
+        return
+
+    email = os.environ.get("ADMIN_BOOTSTRAP_EMAIL", "").strip().lower()
+    password = os.environ.get("ADMIN_BOOTSTRAP_PASSWORD", "")
+    name = os.environ.get("ADMIN_BOOTSTRAP_NAME", "Admin")
+
+    if not email or not password:
+        return
+
+    admin = User(name=name, email=email, role="admin")
+    admin.set_password(password)
+    db.session.add(admin)
+    db.session.commit()
 
 
 app = create_app()

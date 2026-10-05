@@ -71,6 +71,29 @@ def users():
     return render_template("users.html", users=all_users)
 
 
+@auth_bp.route("/account/password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    if request.method == "POST":
+        current_password = request.form.get("current_password") or ""
+        new_password = request.form.get("new_password") or ""
+        confirm_password = request.form.get("confirm_password") or ""
+
+        if not current_user.check_password(current_password):
+            flash("Current password is incorrect.", "error")
+        elif len(new_password) < 8:
+            flash("New password must be at least 8 characters.", "error")
+        elif new_password != confirm_password:
+            flash("New passwords don't match.", "error")
+        else:
+            current_user.set_password(new_password)
+            db.session.commit()
+            flash("Password updated.", "success")
+            return redirect(url_for("dashboard.index"))
+
+    return render_template("change_password.html")
+
+
 @auth_bp.route("/users/new", methods=["GET", "POST"])
 @login_required
 def new_user():
