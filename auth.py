@@ -1,9 +1,37 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from models import User, db
 
 auth_bp = Blueprint("auth", __name__)
+
+
+@auth_bp.route("/setup", methods=["POST"])
+def setup():
+    """One-time bootstrap: creates the first admin account. Only works while
+    there are zero users in the database and the caller provides SETUP_TOKEN
+    - after the first admin exists this always refuses, so it can't be used
+    to mint extra admins later."""
+    if User.query.count() > 0:
+        return jsonify({"error": "already set up"}), 403
+
+    setup_token = current_app.config.get("SETUP_TOKEN")
+    if not setup_token or request.headers.get("X-Setup-Token") != setup_token:
+        return jsonify({"error": "unauthorized"}), 401
+
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password") or ""
+
+    if not name or not email or not password:
+        return jsonify({"error": "name, email and password are required"}), 400
+
+    user = User(name=name, email=email, role="admin")
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    return jsonify({"status": "ok", "email": email}), 201
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])

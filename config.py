@@ -28,6 +28,10 @@ class Config:
     # by anyone who finds the endpoint URL.
     LEAD_API_KEY = os.environ.get("LEAD_API_KEY", "")
 
+    # One-time bootstrap secret for POST /setup, which creates the first admin
+    # account. Only works while the users table is empty - see auth.py.
+    SETUP_TOKEN = os.environ.get("SETUP_TOKEN", "")
+
     # Twilio
     TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "")
     TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN", "")
