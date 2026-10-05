@@ -2,9 +2,14 @@ import os
 
 
 def _normalize_db_url(url: str) -> str:
-    # Railway/Heroku-style URLs sometimes use postgres:// which SQLAlchemy rejects
+    # Railway/Heroku-style URLs sometimes use postgres:// which SQLAlchemy rejects.
+    # Also force the psycopg2 driver explicitly: newer SQLAlchemy versions can
+    # default a bare "postgresql://" URL to the psycopg (v3) dialect, which
+    # isn't installed here (we use psycopg2-binary), causing a boot crash.
     if url and url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql://", 1)
+    if url and url.startswith("postgresql://"):
+        url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
     return url
 
 
